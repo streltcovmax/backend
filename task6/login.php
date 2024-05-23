@@ -29,7 +29,6 @@
                 else 
                 {
                     // Пользователь найден, но не является администратором
-                    // unset($_COOKIE['errors']);
                     unset($_COOKIE['errors']);
                     setcookie('errors', null, -1, '/');
                     header("Location: form.php"); 

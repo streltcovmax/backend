@@ -3,8 +3,6 @@
 
     $errors = isset($_COOKIE['errors']) ? json_decode($_COOKIE['errors'], true) : [];
 
-    echo isset($_COOKIE['errors']);
-
 
     if(!empty($_SESSION['username']))
     {
