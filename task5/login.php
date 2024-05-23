@@ -21,6 +21,8 @@
             if ($user && password_verify($password, $user['password'])) 
             {
                 $_SESSION['username'] = $login;
+                unset($_COOKIE['errors']);
+                setcookie('errors', null, -1, '/');
                 header("Location: form.php"); 
                 exit();
             } 
@@ -35,7 +37,8 @@
         elseif (isset($_POST['createAcc'])) 
         {
             session_destroy();
-            setcookie('username', '', time()-3600);
+            unset($_COOKIE['username']);
+            setcookie('username', null, -1, '/');
             header("Location: form.php");
             exit();
         }
