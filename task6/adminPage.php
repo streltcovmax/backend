@@ -2,8 +2,6 @@
     // Подключение к базе данных
     include 'db_credentials.php';
 
-    
-    
 
     // Запрос к базе данных для выборки всех данных из таблицы Users
     $stmt = $db->query("SELECT * FROM Users");

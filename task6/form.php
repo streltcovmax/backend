@@ -1,16 +1,68 @@
 <?php
+    include 'formhandler.php';
 
-include 'formhandler.php';
-$fullname_cookie = isset($_COOKIE['fullname']) ? $_COOKIE['fullname'] : '';
-$phone_cookie = isset($_COOKIE['phone']) ? $_COOKIE['phone'] : '';
-$email_cookie = isset($_COOKIE['email']) ? $_COOKIE['email'] : '';
-$bio_cookie = isset($_COOKIE['bio']) ? $_COOKIE['bio'] : '';
-$dob_cookie = isset($_COOKIE['dob']) ? $_COOKIE['dob'] : '';
-$radio1 = isset($_COOKIE['radio1']) ? 'checked' : '';
-$radio2 = isset($_COOKIE['radio2']) ? 'checked' : '';
-$contact_cookie = isset($_COOKIE['contact']) ? 'checked' : '';
-$languages_cookie = isset($_COOKIE['selected_languages']) ? json_decode($_COOKIE['selected_languages'], true) : [];
-$errors = isset($_COOKIE['errors']) ? json_decode($_COOKIE['errors'], true) : [];
+    $errors = isset($_COOKIE['errors']) ? json_decode($_COOKIE['errors'], true) : [];
+
+    echo isset($_COOKIE['errors']);
+
+
+    if(!empty($_SESSION['username']))
+    {
+        if(isset($_COOKIE['username']) and $_SESSION['username'] == $_COOKIE['username'])
+        {
+            //БРАТЬ ИЗ COOKIE ДАННЫЕ ФОРМЫ
+            $fullname_cookie = isset($_COOKIE['fullname']) ? $_COOKIE['fullname'] : '';
+            $phone_cookie = isset($_COOKIE['phone']) ? $_COOKIE['phone'] : '';
+            $email_cookie = isset($_COOKIE['email']) ? $_COOKIE['email'] : '';
+            $bio_cookie = isset($_COOKIE['bio']) ? $_COOKIE['bio'] : '';
+            $dob_cookie = isset($_COOKIE['dob']) ? $_COOKIE['dob'] : '';
+            $radio1 = isset($_COOKIE['radio1']);
+            $radio2 = isset($_COOKIE['radio2']);
+            $contact_cookie = isset($_COOKIE['contact']);
+            $languages_cookie = isset($_COOKIE['selected_languages']) ? json_decode($_COOKIE['selected_languages'], true) : [];
+        }
+        else
+        {
+            //БРАТЬ ИЗ БД ДАННЫЕ ФОРМЫ
+            $stmt = $db->prepare("SELECT * FROM Users WHERE username = ?");
+            $stmt->execute([$_SESSION["username"]]);
+            $fet = $stmt->fetchAll(PDO::FETCH_ASSOC)[0];
+            $user_id = $fet['user_id'];
+            $fullname_cookie = $fet['fullname'];
+            $phone_cookie = $fet['phone'];
+            $email_cookie = $fet['email'];
+            $bio_cookie = $fet['bio'];
+            $dob_cookie = $fet['dob'];
+            if($fet['gender'] == 'male')
+            {
+                $radio1 = true;
+                $radio2 = false;
+            }
+            else
+            {
+                $radio1 = false;
+                $radio2 = true;
+            }
+            $stmt = $db->prepare("SELECT lang_id FROM UserProgrammingLanguages WHERE user_id = ?");
+            $stmt->execute([$user_id]);
+            $languages_cookie = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            $contact_cookie = true;
+        }
+    }
+    else
+    {
+        //НОВЫЙ ПОЛЬЗОВАТЕЛЬ
+        $fullname_cookie = '';
+        $phone_cookie = '';
+        $email_cookie = '';
+        $bio_cookie = '';
+        $dob_cookie = '';
+        $radio1 = '';
+        $radio2 = '';
+        $contact_cookie = '';
+        $languages_cookie = [];
+    }
+
 
 ?>
 <!DOCTYPE html>
@@ -58,9 +110,9 @@ $errors = isset($_COOKIE['errors']) ? json_decode($_COOKIE['errors'], true) : []
             </div>
             <div class="form-group input-control">
                 <label class="form-label">Пол:</label>
-                <input type="radio" id="male" name="gender" <?php echo $radio1;?> value="male" class="form-radio" <label
-                    for="male">Мужской</label>
-                <input type="radio" id="female" name="gender" <?php echo $radio2;?> value="female" class="form-radio"
+                <input type="radio" id="male" name="gender" <?php if($radio1 == 1) echo 'checked'; ?> value="male" class="form-radio">
+                 <label for="male">Мужской</label>
+                <input type="radio" id="female" name="gender" <?php if($radio2 == 1) echo 'checked'; ?> value="female" class="form-radio">
                     <label for="female">Женский</label>
                 <?php echo isset($errors['gender']) ? $errors['gender'] : ''; ?>
             </div>
@@ -98,7 +150,7 @@ $errors = isset($_COOKIE['errors']) ? json_decode($_COOKIE['errors'], true) : []
                 <?php echo isset($errors['bio']) ? $errors['bio'] : ''; ?>
             </div>
             <div class="form-group input-control">
-                <input type="checkbox" id="contact" name="contact" class="form-checkbox" <?php echo $contact_cookie;?>
+                <input type="checkbox" id="contact" name="contact" class="form-checkbox" <?php if($contact_cookie == 1) echo 'checked'; ?>
                     <label for="contact" class="form-label">С контрактом ознакомлен</label>
                 <?php echo isset($errors['contact']) ? $errors['contact'] : ''; ?>
             </div>
