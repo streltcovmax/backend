@@ -1,14 +1,21 @@
 <?php
     session_start();
-    include 'db_credentials.php';
+    include __DIR__.'/db_credentials.php';
+
+    $loginReg = "/^[a-zA-Z]+_[0-9]+$/";
     
-    // Проверяем, если форма была отправлена
     if ($_SERVER["REQUEST_METHOD"] == "POST") 
     {
         if(isset($_POST['enterAcc'])) 
         {
             $login = $_POST['login'];
             $password = $_POST['password'];
+
+            if(!preg_match($loginReg,$login))
+            {
+                echo "НЕКОРРЕКТНЫЕ СИМВОЛЫ";
+                exit();
+            }
 
             $stmt = $db->prepare("SELECT * FROM Users WHERE username = ?");
             $stmt->execute([$login]);
@@ -32,7 +39,6 @@
             } 
             else 
             {
-                // Пользователь не найден
                 //header("Location: index.php");
                 echo "<p style='color:red;'>", "Неправильный логин или пароль!";
                 exit();

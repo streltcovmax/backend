@@ -20,12 +20,12 @@
         <title>Авторизация</title>
     </head>
     <body>
-        <!-- Форма авторизации -->
         <form action="login.php" method="POST">
             <input type="text" name="login" placeholder="Введите свой логин">
             <input type="password" name="password" placeholder="Введите пароль">
             <button type="submit" name="enterAcc">Войти</button><br>
             <button type="submit" name="createAcc">Создать аккаунт</button>
+            
         </form>
     </body>
 </html>

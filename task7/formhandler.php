@@ -1,6 +1,6 @@
 <?php
     session_start();
-    include 'db_credentials.php';
+    include __DIR__.'/db_credentials.php';
 
     $expiration_time = time() + 365 * 24 * 60 * 60;
 
@@ -27,6 +27,16 @@
     $phoneReg = "/^(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){10,14}(\s*)?$/";
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+
+        //CSRF
+        if(!empty($_SESSION['csrf_token']) and !empty($_POST['token']) and $_SESSION['csrf_token'] != $_POST["token"])
+        {
+            header("Location: index.php");
+            exit();
+        }
+
+
         $fullname = test_input($_POST['fullname']);
         $email = test_input($_POST['email']);
         $phone = test_input($_POST['phone']);
@@ -34,13 +44,14 @@
         $dob = test_input($_POST['dob']);
         $gender = isset($_POST['gender']) ? $_POST['gender'] : ''; ;
         $contact = isset($_POST['contact']) ? $_POST['contact'] : ''; ;
-        $selected_languages = isset($_POST['languages']) ? $_POST['languages'] : ''; ;
+        $selected_languages = isset($_POST['languages']) ? array_map('test_input', $_POST['languages']) : [];
+
         
         if(empty($fullname)){
             $errors['fullname']='<small style="color:red;">Поле не должно быть пустым</small>';
         }
         else if(!preg_match($nameReg,$fullname)){
-            $errors['fullname']='<small style="color:red;">Поле должно содержать как минимум фамилию и имя на русском языке</small>';
+            $errors['fullname']='<small style="color:red;">Поле должно содержать фамилию и имя</small>';
         }
         else{
             setcookie('fullname', $_POST['fullname'], $expiration_time, '/');
@@ -142,9 +153,9 @@
 
                 setcookie('username', $generated_username);
 
-                echo $_SESSION['username'];
+                echo htmlspecialchars($generated_username);
                 echo "<br> </br>";
-                echo $_SESSION['password'];
+                echo htmlspecialchars($password);
                 echo "<br> </br>";
                 echo 'Данные успешно сохранены.';
             }
@@ -191,8 +202,9 @@
                     }
                     echo 'Данные успешно изменены!';
                     
-                } else {
-                    echo 'Ошибка: Пользователь с логином ' . $_SESSION['username'] . ' не найден.';
+                } 
+                else {
+                    echo 'Ошибка: Пользователь с логином ' . htmlspecialchars($_SESSION['username']) . ' не найден.';
                 }
             }
         }

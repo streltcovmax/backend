@@ -7,7 +7,7 @@
         $db = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD,
             [PDO::ATTR_PERSISTENT => true, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
     } catch (PDOException $e) {
-        echo 'Подключение не удалось: ' . $e->getMessage();
+        echo 'Подключение не удалось: ' . htmlspecialchars($e->getMessage());
         exit;
     }
 
