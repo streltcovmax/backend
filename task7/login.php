@@ -2,7 +2,8 @@
     session_start();
     include __DIR__.'/db_credentials.php';
 
-    $loginReg = "/^[a-zA-Z]+_[0-9]+$/";
+    $loginReg = '/^[a-zA-Z]+_[0-9]+$/';
+    $passReg = '/^[a-zA-Z0-9]+$/';
     
     if ($_SERVER["REQUEST_METHOD"] == "POST") 
     {
@@ -11,7 +12,7 @@
             $login = $_POST['login'];
             $password = $_POST['password'];
 
-            if(!preg_match($loginReg,$login))
+            if(!preg_match($loginReg,$login) or !preg_match($passReg,$password))
             {
                 echo "НЕКОРРЕКТНЫЕ СИМВОЛЫ";
                 exit();
