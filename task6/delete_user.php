@@ -1,10 +1,9 @@
 <?php
 include 'db_credentials.php';
 
-// Получаем user_id из GET-параметра
-$user_id = $_GET['user_id'];
+// Исправлено с GET 
+$user_id = $_POST['user_id'];
 
-// Проверяем, передан ли user_id
 if (!isset($user_id)) {
     echo "Ошибка: user_id не передан.";
     exit;
@@ -19,7 +18,6 @@ try {
     $stmt = $db->prepare("DELETE FROM Users WHERE user_id = ?");
     $stmt->execute([$user_id]);
 
-    // Перенаправляем пользователя обратно на страницу администратора
     header("Location: adminPage.php");
     exit;
 } catch (PDOException $e) {
