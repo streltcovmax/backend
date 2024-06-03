@@ -1,4 +1,6 @@
 <?php
+    session_start();
+
     include __DIR__.'/db_credentials.php';
 
     adminCheck($db);
@@ -31,7 +33,7 @@
     
             $stmt = $db->prepare("UPDATE Users SET fullname = ?, phone = ?, email = ? WHERE user_id = ?");
             $stmt->execute([$new_fullname, $new_phone, $new_email, $user_id]);
-            header("Location: user_profile.php?user_id=$user_id");
+            echo "Данные изменены!";
             
             exit();
         }
