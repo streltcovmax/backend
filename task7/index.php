@@ -1,6 +1,6 @@
 <?php
     session_start();
-
+    ini_set('display_errors', 'Off');
     // header("Location: index.php"); 
 
     // Проверяем, если пользователь не вошел в систему, перенаправляем его на страницу авторизации

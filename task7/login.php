@@ -2,7 +2,7 @@
     session_start();
     include __DIR__.'/db_credentials.php';
 
-    $loginReg = '/^[a-zA-Z]+_[0-9]+$/';
+    $loginReg = '/^[a-zA-Z_0-9]+$/';
     $passReg = '/^[a-zA-Z0-9]+$/';
     
     if ($_SERVER["REQUEST_METHOD"] == "POST") 

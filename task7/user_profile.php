@@ -1,6 +1,8 @@
 <?php
     include __DIR__.'/db_credentials.php';
 
+    adminCheck($db);
+
     $user_id = isset($_GET['user_id']) ? htmlspecialchars($_GET['user_id']) : '';
 
     if($user_id)
@@ -13,7 +15,6 @@
             echo "Пользователь не найден.";
             exit();
         }
-        
     
         if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
@@ -34,9 +35,12 @@
             
             exit();
         }
-
     }
-
+    else
+    {
+        header("Location: adminPage.php");
+        exit;
+    }
 ?>
 
 

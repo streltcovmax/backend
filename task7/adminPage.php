@@ -3,36 +3,17 @@
 
     include __DIR__.'/db_credentials.php';
 
-
-    if(empty($_SESSION['username']))
-    {
-        echo "ВЫ НЕ АВТОРИЗОВАНЫ";
-        exit();
-    }
-
-    if(!empty($_SESSION['username']))
-    {
-        $username = $_SESSION['username'];
-        $stmt = $db->prepare("SELECT * FROM Users WHERE username = ? and admin = 1");
-        $stmt->execute([$username]);
-        $userAdmin = $stmt->fetch(PDO::FETCH_ASSOC);
-        if(empty($userAdmin))
-        {
-            echo "ВЫ НЕ АДМИНИСТРАТОР";
-            exit();
-        }
-    }
+    adminCheck($db);
 
    
     try {
-        $stmt = $db->query("SELECT * FROM Users");
-        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $dbFD = $db->query("SELECT * FROM Users");
         $stmt = $db->query("
-        SELECT lang_id, COUNT(user_id) AS num_users
-        FROM UserProgrammingLanguages GROUP BY lang_id
+            SELECT lang_id, COUNT(user_id) AS num_users
+            FROM UserProgrammingLanguages
+            GROUP BY lang_id
         ");
         $statistics = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
     } 
     catch (PDOException $e) {
         echo "Ошибка: " . htmlspecialchars($e->getMessage());
@@ -45,6 +26,8 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="./libs/js/jquery-3.4.1.min.js"></script>
+        <link rel="stylesheet" href="./assets/css/admin.css">
         <title>Страница администратора</title>
     </head>
     <body>
@@ -64,19 +47,25 @@
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($users as $user): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($user['user_id']) ?></td>
-                        <td><?= htmlspecialchars($user['fullname']) ?></td>
-                        <td><?= htmlspecialchars($user['phone']) ?></td>
-                        <td><?= htmlspecialchars($user['email']) ?></td>
-                        <td><?= htmlspecialchars($user['dob']) ?></td>
-                        <td><?= htmlspecialchars($user['gender']) ?></td>
-                        <td><?= htmlspecialchars($user['bio']) ?></td>
-                        <td><a href="user_profile.php?user_id=<?= htmlspecialchars($user['user_id']) ?>">Редактировать</a></td>
-                        <td><a href="delete_user.php?user_id=<?= htmlspecialchars($user['user_id']) ?>">Удалить</a></td>
-                    </tr>
-                <?php endforeach; ?>
+                <?php 
+                    while($row = $dbFD->fetch(PDO::FETCH_ASSOC)){
+                        echo '<tr data-id='.$row['user_id'].'>
+                        <td>'.htmlspecialchars($row['user_id']).'</td>
+                        <td>'.htmlspecialchars($row['fullname']).'</td>
+                        <td>'.htmlspecialchars($row['phone']).'</td>
+                        <td>'.htmlspecialchars($row['email']).'</td>
+                        <td>'.htmlspecialchars($row['dob']).'</td>
+                        <td>'.htmlspecialchars($row['gender']).'</td>
+                        <td>'.htmlspecialchars($row['bio']).'</td>
+                        <td>';
+                        
+                        echo '</td>
+                        <td><a href="user_profile.php?user_id='.$row['user_id'].'" target="_blank">Редактировать</a></td>
+                        <td><button class="remove">Удалить</button></td>
+                        <td colspan="10" class="form_del hidden">Форма удалена</td>
+                    </tr>';
+                    }
+            ?>
             </tbody>
         </table>
         <h1>Статистика по языкам программирования</h1>
@@ -96,5 +85,6 @@
                 <?php endforeach; ?>
             </tbody>
         </table>
+        <script src="del.js"></script>
     </body>
 </html>
