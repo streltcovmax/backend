@@ -7,13 +7,14 @@
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") 
     {
-        $user_id = $_POST['user_id'];
+        $user_id = htmlspecialchars( $_POST['user_id']);
         echo $user_id;
 
-        if (!isset($user_id)) {
-            echo "Ошибка: user_id не передан.";
+        if ($user_id === null || $user_id === false) {
+            echo "Ошибка: некорректный user_id.";
             exit;
         }
+       
 
         try {
             // Удаляем все записи о языках программирования, связанные с этим пользователем
@@ -26,8 +27,9 @@
 
             header("Location: adminPage.php");
             exit;
-        } catch (PDOException $e) {
-            echo "Ошибка удаления пользователя: " . $e->getMessage();
+        } 
+        catch (PDOException $e) {
+            echo "Ошибка удаления пользователя: " . htmlspecialchars($e->getMessage());
             exit;
         }
     }
