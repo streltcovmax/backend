@@ -1,19 +1,25 @@
 <?php
-    // Подключение к базе данных
-    include 'db_credentials.php';
+    session_start();
 
+    include __DIR__.'/db_credentials.php';
 
-    // Запрос к базе данных для выборки всех данных из таблицы Users
-    $stmt = $db->query("SELECT * FROM Users");
-    
-    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    adminCheck($db);
 
-    $stmt = $db->query("
-        SELECT lang_id, COUNT(user_id) AS num_users
-        FROM UserProgrammingLanguages
-        GROUP BY lang_id
-    ");
-    $statistics = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    try {
+
+        $dbFD = $db->query("SELECT * FROM Users");
+
+        $stmt = $db->query("
+            SELECT lang_id, COUNT(user_id) AS num_users
+            FROM UserProgrammingLanguages
+            GROUP BY lang_id
+        ");
+        $statistics = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } 
+    catch (PDOException $e) {
+        echo "Ошибка: " . htmlspecialchars($e->getMessage());
+        die();
+    }
 ?>
 
 <!DOCTYPE html>
@@ -21,6 +27,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="./libs/js/jquery-3.4.1.min.js"></script>
+    <link rel="stylesheet" href="./assets/css/admin.css">
     <title>Страница администратора</title>
 </head>
 <body>
@@ -40,19 +48,27 @@
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($users as $user): ?>
-                <tr>
-                    <td><?= $user['user_id'] ?></td>
-                    <td><?= $user['fullname'] ?></td>
-                    <td><?= $user['phone'] ?></td>
-                    <td><?= $user['email'] ?></td>
-                    <td><?= $user['dob'] ?></td>
-                    <td><?= $user['gender'] ?></td>
-                    <td><?= $user['bio'] ?></td>
-                    <td><a href="user_profile.php?user_id=<?= $user['user_id'] ?>">Редактировать</a></td>
-                    <td><a href="delete_user.php?user_id=<?= $user['user_id'] ?>">Удалить</a></td>
-                </tr>
-            <?php endforeach; ?>
+            
+            <?php
+                while($row = $dbFD->fetch(PDO::FETCH_ASSOC)){
+                    echo '<tr data-id='.$row['user_id'].'>
+                    <td>'.$row['user_id'].'</td>
+                    <td>'.$row['fullname'].'</td>
+                    <td>'.$row['phone'].'</td>
+                    <td>'.$row['email'].'</td>
+                    <td>'.$row['dob'].'</td>
+                    <td>'.$row['gender'].'</td>
+                    <td>'.$row['bio'].'</td>
+                    <td>';
+                    
+                    echo '</td>
+                    <td><a href="user_profile.php?user_id='.$row['user_id'].'" target="_blank">Редактировать</a></td>
+                    <td><button class="remove">Удалить</button></td>
+                    <td colspan="10" class="form_del hidden">Форма удалена</td>
+                </tr>';
+                }
+            ?>
+
         </tbody>
     </table>
     <h1>Статистика по языкам программирования</h1>
@@ -72,5 +88,6 @@
             <?php endforeach; ?>
         </tbody>
     </table>
+    <script src="del.js"></script>
 </body>
 </html>

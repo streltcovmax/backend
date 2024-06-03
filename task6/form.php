@@ -9,6 +9,7 @@
         if(isset($_COOKIE['username']) and $_SESSION['username'] == $_COOKIE['username'])
         {
             //БРАТЬ ИЗ COOKIE ДАННЫЕ ФОРМЫ
+            // echo "FROM COOKIE";
             $fullname_cookie = isset($_COOKIE['fullname']) ? $_COOKIE['fullname'] : '';
             $phone_cookie = isset($_COOKIE['phone']) ? $_COOKIE['phone'] : '';
             $email_cookie = isset($_COOKIE['email']) ? $_COOKIE['email'] : '';
@@ -22,6 +23,7 @@
         else
         {
             //БРАТЬ ИЗ БД ДАННЫЕ ФОРМЫ
+            // echo "FROM DB";
             $stmt = $db->prepare("SELECT * FROM Users WHERE username = ?");
             $stmt->execute([$_SESSION["username"]]);
             $fet = $stmt->fetchAll(PDO::FETCH_ASSOC)[0];

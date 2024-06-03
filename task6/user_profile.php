@@ -1,30 +1,40 @@
 <?php
-    // Подключение к базе данных
     include 'db_credentials.php';
 
-    // Получение идентификатора пользователя из запроса
+    adminCheck($db);
+
     $user_id = $_GET['user_id'];
+    
+    if(!empty($user_id))
+    {
+        $stmt = $db->prepare("SELECT * FROM Users WHERE user_id = ?");
+        $stmt->execute([$user_id]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        if(!empty($user))
+        {
 
-    // Получение данных пользователя из базы данных
-    $stmt = $db->prepare("SELECT * FROM Users WHERE user_id = ?");
-    $stmt->execute([$user_id]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    // Обработка отправленной формы для обновления данных пользователя
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        // Получение новых данных из формы
-        $new_fullname = $_POST['fullname'];
-        $new_phone = $_POST['phone'];
-        $new_email = $_POST['email'];
-        // Добавьте другие поля, если необходимо
-
-        // Выполнение запроса на обновление данных пользователя в базе данных
-        $stmt = $db->prepare("UPDATE Users SET fullname = ?, phone = ?, email = ? WHERE user_id = ?");
-        $stmt->execute([$new_fullname, $new_phone, $new_email, $user_id]);
-        header("Location: user_profile.php?user_id=$user_id");
-        
-        
-        exit();
+            if ($_SERVER["REQUEST_METHOD"] == "POST") {
+                $new_fullname = $_POST['fullname'];
+                $new_phone = $_POST['phone'];
+                $new_email = $_POST['email'];
+                
+                $stmt = $db->prepare("UPDATE Users SET fullname = ?, phone = ?, email = ? WHERE user_id = ?");
+                $stmt->execute([$new_fullname, $new_phone, $new_email, $user_id]);
+                header("Location: user_profile.php?user_id=$user_id");
+                
+                exit;
+            }
+        }
+        else
+        {
+            echo 'Такого пользователя нет!';
+            exit;
+        }
+    }
+    else
+    {
+        header("Location: adminPage.php");
+        exit;
     }
 ?>
 
@@ -44,7 +54,6 @@
         <input type="text" name="phone" value="<?= $user['phone'] ?>">
         <label>Email:</label>
         <input type="email" name="email" value="<?= $user['email'] ?>">
-        <!-- Добавьте другие поля, если необходимо -->
         <button type="submit">Сохранить изменения</button>
     </form>
 </body>

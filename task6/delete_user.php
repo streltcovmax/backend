@@ -1,27 +1,40 @@
 <?php
-include 'db_credentials.php';
+    session_start();
 
-// Исправлено с GET 
-$user_id = $_POST['user_id'];
+    include __DIR__.'/db_credentials.php';
 
-if (!isset($user_id)) {
-    echo "Ошибка: user_id не передан.";
-    exit;
-}
+    adminCheck($db);
 
-try {
-    // Удаляем все записи о языках программирования, связанные с этим пользователем
-    $stmt = $db->prepare("DELETE FROM UserProgrammingLanguages WHERE user_id = ?");
-    $stmt->execute([$user_id]);
+    if ($_SERVER["REQUEST_METHOD"] == "POST") 
+    {
+        $user_id = $_POST['user_id'];
+        echo $user_id;
 
-    // Теперь можно удалить пользователя
-    $stmt = $db->prepare("DELETE FROM Users WHERE user_id = ?");
-    $stmt->execute([$user_id]);
+        if (!isset($user_id)) {
+            echo "Ошибка: user_id не передан.";
+            exit;
+        }
 
-    header("Location: adminPage.php");
-    exit;
-} catch (PDOException $e) {
-    echo "Ошибка удаления пользователя: " . $e->getMessage();
-    exit;
-}
+        try {
+            // Удаляем все записи о языках программирования, связанные с этим пользователем
+            $stmt = $db->prepare("DELETE FROM UserProgrammingLanguages WHERE user_id = ?");
+            $stmt->execute([$user_id]);
+
+            // Теперь можно удалить пользователя
+            $stmt = $db->prepare("DELETE FROM Users WHERE user_id = ?");
+            $stmt->execute([$user_id]);
+
+            header("Location: adminPage.php");
+            exit;
+        } catch (PDOException $e) {
+            echo "Ошибка удаления пользователя: " . $e->getMessage();
+            exit;
+        }
+    }
+    else
+    {
+        header("Location: adminPage.php");
+        exit;
+    }
+
 ?>
